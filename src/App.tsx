@@ -70,7 +70,7 @@ function PageFallback() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <AuthProvider>
         <Suspense fallback={<PageFallback />}>
           <Routes>
