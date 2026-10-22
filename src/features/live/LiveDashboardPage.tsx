@@ -4,7 +4,8 @@ import { BarChart3, Trophy } from 'lucide-react'
 import { useTournamentData } from '@/hooks/useTournamentData'
 import { calculateDelayMinutes } from '@/algorithms/delay'
 import { generateFinal } from '@/algorithms/finals'
-import { addMinutesToISO, formatClock } from '@/utils/time'
+import { formatClock } from '@/utils/time'
+import { useEstimatedStarts } from '@/hooks/useEstimatedStarts'
 import { createMatches, updateTournament } from '@/repositories'
 import { Button, PageHeader, Panel, Spinner, StatusPill } from '@/components'
 import { MatchCard } from '@/components'
@@ -32,6 +33,7 @@ export function LiveDashboardPage() {
   const finalMatch = orderedMatches.find((m) => m.type === 'final')
   const semiFinals = orderedMatches.filter((m) => m.type === 'semifinal')
   const delayMinutes = calculateDelayMinutes(orderedMatches)
+  const estimates = useEstimatedStarts(matches, tournament?.settings.transitionDuration ?? 0)
   const createdFinalRef = useRef(false)
   const closedChampionScreenRef = useRef(false)
   const [showChampions, setShowChampions] = useState(false)
@@ -171,6 +173,7 @@ export function LiveDashboardPage() {
               match={nextMatch}
               teamA={teamsById.get(nextMatch.teamAId)}
               teamB={teamsById.get(nextMatch.teamBId)}
+              estimatedStart={estimates[nextMatch.id]}
             />
           </div>
         )}
@@ -185,7 +188,7 @@ export function LiveDashboardPage() {
           {finalMatch && (
             <div className="text-right">
               <p className="font-display text-2xl font-bold text-gold">
-                {formatClock(addMinutesToISO(finalMatch.scheduledStart, delayMinutes))}
+                {formatClock(estimates[finalMatch.id] ?? finalMatch.scheduledStart)}
               </p>
               <p className="text-sm text-cream/60">finale estimée</p>
             </div>

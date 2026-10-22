@@ -1,5 +1,5 @@
 import type { Match, Team } from '@/models'
-import { formatClock } from '@/utils/time'
+import { MatchTime } from './MatchTime'
 import { StatusPill } from './StatusPill'
 
 const TYPE_LABEL: Record<Match['type'], string> = {
@@ -14,12 +14,15 @@ export function MatchCard({
   teamB,
   poolName,
   highlight = false,
+  estimatedStart,
 }: {
   match: Match
   teamA?: Team
   teamB?: Team
   poolName?: string
   highlight?: boolean
+  /** Horaire estimé (voir estimateMatchStarts), affiché s'il s'écarte du prévu */
+  estimatedStart?: string
 }) {
   const isLive = match.status === 'live'
   const isDone = match.status === 'finished'
@@ -37,9 +40,11 @@ export function MatchCard({
       ].join(' ')}
     >
       <div className="w-14 shrink-0 text-center">
-        <span className="block font-display text-lg font-bold text-cream tabular-nums">
-          {formatClock(match.scheduledStart)}
-        </span>
+        <MatchTime
+          scheduledStart={match.scheduledStart}
+          estimatedStart={estimatedStart}
+          className="font-display text-lg font-bold text-cream"
+        />
         {(label || poolName) && (
           <span className="block text-[11px] uppercase tracking-wide text-cream/50">
             {label || poolName}

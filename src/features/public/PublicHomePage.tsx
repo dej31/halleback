@@ -4,6 +4,7 @@ import { Trophy } from 'lucide-react'
 import { usePublicTournamentData } from './PublicLayout'
 import { MatchCard, StatusPill } from '@/components'
 import { MyTeamWidget } from './MyTeamWidget'
+import { useEstimatedStarts } from '@/hooks/useEstimatedStarts'
 
 export function PublicHomePage() {
   const { tournament, teams, matches } = usePublicTournamentData()
@@ -15,6 +16,10 @@ export function PublicHomePage() {
   const liveMatch = orderedMatches.find((m) => m.status === 'live')
   const nextMatch = orderedMatches.find((m) => m.status === 'scheduled')
   const finalMatch = orderedMatches.find((m) => m.type === 'final')
+  const estimates = useEstimatedStarts(
+    matches,
+    tournament?.settings.transitionDuration ?? 0,
+  )
 
   if (!tournament) return null
 
@@ -82,6 +87,7 @@ export function PublicHomePage() {
             match={nextMatch}
             teamA={teamsById.get(nextMatch.teamAId)}
             teamB={teamsById.get(nextMatch.teamBId)}
+            estimatedStart={estimates[nextMatch.id]}
           />
         </section>
       )}
@@ -91,6 +97,7 @@ export function PublicHomePage() {
         teams={teams}
         matches={matches}
         teamsById={teamsById}
+        estimates={estimates}
       />
 
       <div className="mb-4 grid grid-cols-3 gap-2 text-center text-sm font-semibold">

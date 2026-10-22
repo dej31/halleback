@@ -3,18 +3,21 @@ import { Search } from 'lucide-react'
 import type { Match, Team } from '@/models'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { diffMinutes, formatClock } from '@/utils/time'
-import { Panel } from '@/components'
+import { MatchTime, Panel } from '@/components'
 
 export function MyTeamWidget({
   slug,
   teams,
   matches,
   teamsById,
+  estimates = {},
 }: {
   slug: string
   teams: Team[]
   matches: Match[]
   teamsById: Map<string, Team>
+  /** Horaires estimés des matchs à venir, par id de match */
+  estimates?: Record<string, string>
 }) {
   const [myTeamId, setMyTeamId] = useLocalStorage<string | null>(
     `halleback:my-team:${slug}`,
@@ -32,6 +35,7 @@ export function MyTeamWidget({
   }, [matches, myTeamId])
 
   const nextMatch = myMatches.find((m) => m.status !== 'finished')
+  const nextStart = nextMatch ? (estimates[nextMatch.id] ?? nextMatch.scheduledStart) : undefined
 
   if (!myTeam) {
     const filtered = teams.filter((t) =>
@@ -96,13 +100,14 @@ export function MyTeamWidget({
         <div className="mb-4">
           <p className="font-hand text-xl text-gold">Mon prochain match</p>
           <p className="font-display text-2xl font-bold text-cream">
-            {formatClock(nextMatch.scheduledStart)} —{' '}
+            {formatClock(nextStart!)} —{' '}
             {teamsById.get(nextMatch.teamAId)?.name} vs{' '}
             {teamsById.get(nextMatch.teamBId)?.name}
           </p>
           {nextMatch.status === 'scheduled' && (
             <p className="text-sm text-cream/60">
-              Dans {Math.max(0, Math.round(diffMinutes(nextMatch.scheduledStart, new Date().toISOString())))} min
+              {nextStart !== nextMatch.scheduledStart && estimates[nextMatch.id] ? 'Estimé dans' : 'Dans'}{' '}
+              {Math.max(0, Math.round(diffMinutes(nextStart!, new Date().toISOString())))} min
             </p>
           )}
         </div>
@@ -116,9 +121,11 @@ export function MyTeamWidget({
           return (
             <li key={m.id} className="flex items-center gap-2 text-cream/80">
               <span>{m.status === 'finished' ? '✓' : m.status === 'live' ? '🔥' : '→'}</span>
-              <span className="w-12 tabular-nums text-cream/50">
-                {formatClock(m.scheduledStart)}
-              </span>
+              <MatchTime
+                scheduledStart={m.scheduledStart}
+                estimatedStart={estimates[m.id]}
+                className="w-12 text-cream/50"
+              />
               <span>
                 vs {opponent?.name}
                 {m.status === 'finished' &&

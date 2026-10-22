@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import { usePublicTournamentData } from './PublicLayout'
-import { formatClock } from '@/utils/time'
-import { PageHeader } from '@/components'
+import { MatchTime, PageHeader } from '@/components'
+import { useEstimatedStarts } from '@/hooks/useEstimatedStarts'
 
 export function PublicMatchesPage() {
-  const { teams, matches } = usePublicTournamentData()
+  const { tournament, teams, matches } = usePublicTournamentData()
+  const estimates = useEstimatedStarts(matches, tournament?.settings.transitionDuration ?? 0)
   const teamsById = useMemo(() => new Map(teams.map((t) => [t.id, t])), [teams])
   const ordered = useMemo(
     () => [...matches].sort((a, b) => a.orderIndex - b.orderIndex),
@@ -25,9 +26,11 @@ export function PublicMatchesPage() {
                 : 'border-cream/15 bg-ink-soft',
             ].join(' ')}
           >
-            <span className="w-14 shrink-0 font-display font-bold text-gold tabular-nums">
-              {formatClock(m.scheduledStart)}
-            </span>
+            <MatchTime
+              scheduledStart={m.scheduledStart}
+              estimatedStart={estimates[m.id]}
+              className="w-14 shrink-0 font-display font-bold text-gold"
+            />
             <span className="text-lg">
               {m.status === 'finished' ? '✓' : m.status === 'live' ? '🔥' : '→'}
             </span>

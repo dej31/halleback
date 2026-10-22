@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTournamentData } from '@/hooks/useTournamentData'
 import { formatClock } from '@/utils/time'
+import { useEstimatedStarts } from '@/hooks/useEstimatedStarts'
 import { BigScore, Spinner } from '@/components'
 
 /** Écran grand format (section 52), pensé pour être projeté ou affiché sur
@@ -18,6 +19,7 @@ export function DisplayScreen() {
   const liveMatch = ordered.find((m) => m.status === 'live')
   const nextMatch = ordered.find((m) => m.status === 'scheduled')
   const finishedCount = ordered.filter((m) => m.status === 'finished').length
+  const estimates = useEstimatedStarts(matches, tournament?.settings.transitionDuration ?? 0)
 
   if (loading || !tournament) {
     return (
@@ -61,7 +63,7 @@ export function DisplayScreen() {
           <div className="mt-6">
             <p className="font-hand text-2xl text-gold">Prochain match</p>
             <p className="font-display text-3xl font-bold text-cream">
-              {formatClock(nextMatch.scheduledStart)} —{' '}
+              {formatClock(estimates[nextMatch.id] ?? nextMatch.scheduledStart)} —{' '}
               {teamsById.get(nextMatch.teamAId)?.name} vs{' '}
               {teamsById.get(nextMatch.teamBId)?.name}
             </p>

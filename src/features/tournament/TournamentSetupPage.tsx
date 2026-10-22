@@ -15,13 +15,13 @@ import {
   updateTeam,
   updateTournament,
 } from '@/repositories'
-import { Button, PageHeader, Panel, Section, Spinner } from '@/components'
+import { Button, MatchTime, PageHeader, Panel, Section, Spinner } from '@/components'
+import { useEstimatedStarts } from '@/hooks/useEstimatedStarts'
 import { TeamQuickAddForm } from '@/features/teams/TeamQuickAddForm'
 import { TeamList } from '@/features/teams/TeamList'
 import { FormatSimulationScreen } from '@/features/scheduling/FormatSimulationScreen'
 import { PoolsPreview } from '@/features/pools/PoolsPreview'
 import { shareOrCopy } from '@/utils/share'
-import { formatClock } from '@/utils/time'
 
 const TRANSITION_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 8, 10]
 
@@ -45,6 +45,7 @@ export function TournamentSetupPage() {
     [matches],
   )
   const teamsById = useMemo(() => new Map(teams.map((t) => [t.id, t])), [teams])
+  const estimates = useEstimatedStarts(matches, tournament?.settings.transitionDuration ?? 0)
 
   if (loading) {
     return (
@@ -252,9 +253,11 @@ export function TournamentSetupPage() {
                     className="flex items-center gap-3 rounded border border-cream/10 bg-ink-soft px-3 py-1.5"
                   >
                     <span className="w-6 shrink-0 text-cream/40">{i + 1}</span>
-                    <span className="w-14 shrink-0 font-semibold text-gold tabular-nums">
-                      {formatClock(m.scheduledStart)}
-                    </span>
+                    <MatchTime
+                      scheduledStart={m.scheduledStart}
+                      estimatedStart={estimates[m.id]}
+                      className="w-14 shrink-0 font-semibold text-gold"
+                    />
                     <span className="flex-1 truncate text-cream/90">
                       {teamsById.get(m.teamAId)?.name} vs {teamsById.get(m.teamBId)?.name}
                     </span>
