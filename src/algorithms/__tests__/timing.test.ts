@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { calculateTournamentTiming, estimateTournamentEnd, scheduleSegments } from '../timing'
+import { combineDateAndTime } from '@/utils/time'
 
 describe('scheduleSegments', () => {
   it('places segments back to back with transition gaps', () => {
@@ -62,5 +63,15 @@ describe('calculateTournamentTiming', () => {
     const times = matches.map((m) => new Date(timing[m.id]).getTime())
     expect(times[0]).toBeLessThan(times[1])
     expect(times[1]).toBeLessThan(times[2])
+  })
+})
+
+describe('combineDateAndTime', () => {
+  it('returns a full UTC timestamp matching the local wall-clock time', () => {
+    const iso = combineDateAndTime('2026-08-29', '15:30')
+    expect(iso.endsWith('Z')).toBe(true)
+    const d = new Date(iso)
+    expect([d.getFullYear(), d.getMonth() + 1, d.getDate()]).toEqual([2026, 8, 29])
+    expect([d.getHours(), d.getMinutes()]).toEqual([15, 30])
   })
 })

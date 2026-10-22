@@ -14,11 +14,15 @@ export function minutesToTime(totalMinutes: number): string {
   return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`
 }
 
+/** Date + heure locale (celle de l'organisateur) -> ISO complet en UTC.
+ * Une chaîne sans fuseau ("2026-08-29T15:30:00") serait lue comme de l'UTC
+ * par la base de données : le premier match se retrouvait décalé de 1 ou 2 h. */
 export function combineDateAndTime(dateISO: string, hhmm: string): string {
   const minutes = timeToMinutes(hhmm)
   const h = Math.floor(minutes / 60)
   const m = minutes % 60
-  return `${dateISO}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`
+  const [year, month, day] = dateISO.split('-').map(Number)
+  return new Date(year, month - 1, day, h, m).toISOString()
 }
 
 export function addMinutesToISO(iso: string, minutes: number): string {
