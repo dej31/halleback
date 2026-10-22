@@ -11,7 +11,7 @@ export function ShareQrPage() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
-  const publicUrl = tournament ? `${window.location.origin}/tournoi/${tournament.slug}` : ''
+  const publicUrl = tournament ? `${window.location.origin}${import.meta.env.BASE_URL}tournoi/${tournament.slug}` : ''
 
   useEffect(() => {
     if (!publicUrl) return

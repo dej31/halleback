@@ -125,7 +125,7 @@ export function TournamentSetupPage() {
   async function handleShare() {
     await shareOrCopy({
       title: tournament!.name,
-      url: `${window.location.origin}/tournoi/${tournament!.slug}`,
+      url: `${window.location.origin}${import.meta.env.BASE_URL}tournoi/${tournament!.slug}`,
     })
   }
 
