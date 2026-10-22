@@ -149,6 +149,10 @@ export function LiveDashboardPage() {
 
         {activeOrNext ? (
           <LiveMatchPanel
+            /* Une clé par match : le chrono, la pause et le score saisi
+               repartent de zéro à chaque nouveau match au lieu d'hériter
+               de l'état du match précédent. */
+            key={activeOrNext.id}
             match={activeOrNext}
             teamA={teamsById.get(activeOrNext.teamAId)}
             teamB={teamsById.get(activeOrNext.teamBId)}

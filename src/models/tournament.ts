@@ -23,7 +23,7 @@ export const DEFAULT_TOURNAMENT_SETTINGS: TournamentSettings = {
   poolMatchDuration: 6,
   semiFinalDuration: 8,
   finalDuration: 10,
-  transitionDuration: 1,
+  transitionDuration: 5,
   pointsWin: 3,
   pointsDraw: 2,
   pointsLoss: 1,

@@ -40,9 +40,14 @@ export async function createMatches(matches: Partial<Match>[]): Promise<Match[]>
 }
 
 export async function updateMatch(id: string, patch: Partial<Match>): Promise<Match> {
+  // matchToRow est pensé pour l'insertion : il force order_index à 0 quand
+  // il n'est pas fourni. Sur une mise à jour partielle (démarrage, score,
+  // fin de match), on ne doit surtout pas écraser l'ordre de passage.
+  const { order_index, ...rest } = matchToRow(patch)
+  const row = patch.orderIndex === undefined ? rest : { ...rest, order_index }
   const { data, error } = await supabase
     .from('matches')
-    .update(matchToRow(patch))
+    .update(row)
     .eq('id', id)
     .select('*')
     .single()

@@ -23,6 +23,8 @@ import { PoolsPreview } from '@/features/pools/PoolsPreview'
 import { shareOrCopy } from '@/utils/share'
 import { formatClock } from '@/utils/time'
 
+const TRANSITION_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 8, 10]
+
 export function TournamentSetupPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -71,6 +73,14 @@ export function TournamentSetupPage() {
     if (!team) return
     if (team.status === 'forfeit') await updateTeam(teamId, { status: 'active' })
     else await markTeamForfeit(teamId)
+    refetch()
+  }
+
+  async function handleTransitionChange(minutes: number) {
+    if (!tournament) return
+    await updateTournament(tournament.id, {
+      settings: { ...tournament.settings, transitionDuration: minutes },
+    })
     refetch()
   }
 
@@ -190,6 +200,30 @@ export function TournamentSetupPage() {
             {formatError}
           </p>
         )}
+
+        <Panel className="mb-4 flex flex-wrap items-center gap-3 p-4">
+          <label htmlFor="transition-duration" className="font-semibold text-cream">
+            Temps entre deux matchs
+          </label>
+          <select
+            id="transition-duration"
+            value={tournament.settings.transitionDuration}
+            onChange={(e) => handleTransitionChange(Number(e.target.value))}
+            className="rounded border-2 border-cream/20 bg-ink px-3 py-1.5 text-cream"
+          >
+            {TRANSITION_OPTIONS.map((min) => (
+              <option key={min} value={min}>
+                {min === 0 ? 'Aucun' : `${min} min`}
+              </option>
+            ))}
+          </select>
+          {hasPlan && (
+            <p className="w-full text-sm text-cream/60">
+              Cliquez sur « Régénérer » pour recalculer le planning et la durée des
+              matchs avec ce temps de pause.
+            </p>
+          )}
+        </Panel>
 
         {!hasPlan ? (
           <Panel className="flex flex-col items-center gap-3 p-6 text-center">
